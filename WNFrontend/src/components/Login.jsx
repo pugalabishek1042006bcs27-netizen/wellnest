@@ -5,15 +5,24 @@ import { authService } from '../services/api'
 import './Login.css'
 
 const Login = () => {
-  const [formData, setFormData] = useState({ username: '', password: '' })
+  const [formData, setFormData] = useState({
+    username: localStorage.getItem('rememberedUsername') || '',
+    password: ''
+  })
+  const [rememberMe, setRememberMe] = useState(!!localStorage.getItem('rememberedUsername'))
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
   const [loading, setLoading] = useState(false)
-  const { login } = useAuth()
+  const { login, loginAsGuest } = useAuth()
   const navigate = useNavigate()
 
   const validateUsername = (username) => {
     return username && username.trim().length >= 3
+  }
+
+  const handleGuestLogin = () => {
+    loginAsGuest('Guest User')
+    navigate('/home')
   }
 
   const handleChange = (e) => {
@@ -42,7 +51,12 @@ const Login = () => {
       const data = await authService.login(formData.username, formData.password)
       
       if (data.token) {
-        login(data)
+        if (rememberMe) {
+          localStorage.setItem('rememberedUsername', formData.username)
+        } else {
+          localStorage.removeItem('rememberedUsername')
+        }
+        login(data, rememberMe)
         setSuccess('Login successful! Redirecting...')
         setTimeout(() => navigate('/home'), 1000)
       } else {
@@ -99,8 +113,30 @@ const Login = () => {
             />
           </div>
 
+          <div className="remember-row">
+            <label className="remember-label" htmlFor="rememberMe">
+              <input
+                type="checkbox"
+                id="rememberMe"
+                checked={rememberMe}
+                onChange={(e) => setRememberMe(e.target.checked)}
+                disabled={loading}
+              />
+              Remember me
+            </label>
+          </div>
+
           <button type="submit" className="btn" disabled={loading}>
             {loading ? 'Logging in...' : 'Login'}
+          </button>
+          
+          <button 
+            type="button" 
+            className="btn btn-guest" 
+            onClick={handleGuestLogin}
+            disabled={loading}
+          >
+            Continue as Guest
           </button>
         </form>
         <div style={{marginLeft:'145px',marginTop:'10px',color:'#0ea5a6',fontWeight:600}}><Link to="/forgot-password">Forgot password?</Link></div>

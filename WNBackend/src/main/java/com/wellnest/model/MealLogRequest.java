@@ -3,7 +3,6 @@ package com.wellnest.model;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.PositiveOrZero;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -25,7 +24,10 @@ public class MealLogRequest {
     @NotBlank
     private String foodType;
 
-    @Positive
+    @NotBlank
+    private String mealName;
+
+    @PositiveOrZero
     private Integer calories;
 
     @PositiveOrZero

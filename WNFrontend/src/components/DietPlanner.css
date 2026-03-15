@@ -1,0 +1,324 @@
+/* Diet Planner Specific Styles */
+
+.diet-planner-title {
+  margin-bottom: 2rem;
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+  color: var(--ink-900);
+  text-align: center;
+  font-family: 'Fraunces', serif;
+  font-size: 26.6px;
+  font-weight: 600;
+}
+
+.user-info-display {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 1rem;
+  margin-bottom: 2rem;
+  padding: 1.5rem;
+  background: rgba(14, 165, 166, 0.08);
+  border-radius: 12px;
+  border: 1px solid rgba(14, 165, 166, 0.2);
+}
+
+.info-box {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 1rem;
+  background: rgba(255, 255, 255, 0.5);
+  border-radius: 8px;
+  text-align: center;
+}
+
+.info-label {
+  font-size: 11.4px;
+  font-weight: 600;
+  color: var(--ink-600);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.info-value {
+  font-size: 15.2px;
+  font-weight: 600;
+  color: var(--primary);
+}
+
+.diet-form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-bottom: 0.75rem;
+  padding: 1.5rem;
+  background: rgba(255, 255, 255, 0.5);
+  border-radius: 12px;
+}
+
+.form-group {
+  margin-bottom: 0.75rem;
+}
+
+.form-group:last-child {
+  margin-bottom: 0;
+}
+
+.form-label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+  color: var(--ink-700);
+  font-size: 13.3px;
+}
+
+.form-input,
+.form-select,
+.form-textarea {
+  width: 100%;
+  padding: 0.875rem 1rem;
+  border: 1px solid rgba(10, 61, 61, 0.2);
+  border-radius: 12px;
+  font-size: 13.3px;
+  font-family: 'Space Grotesk', sans-serif;
+  background: var(--sand-50);
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.form-input:focus,
+.form-select:focus,
+.form-textarea:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(14, 165, 166, 0.1);
+}
+
+.form-textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+.form-input::placeholder,
+.form-textarea::placeholder {
+  color: var(--ink-400);
+}
+
+body.dark-mode .diet-planner-title {
+  color: #e2e8f0;
+}
+
+body.dark-mode .user-info-display {
+  background: rgba(17, 58, 64, 0.7);
+  border-color: rgba(20, 184, 166, 0.35);
+}
+
+body.dark-mode .info-box {
+  background: rgba(15, 23, 42, 0.5);
+}
+
+body.dark-mode .info-label {
+  color: #94a3b8;
+}
+
+body.dark-mode .info-value {
+  color: #22d3ee;
+}
+
+body.dark-mode .diet-form-grid,
+body.dark-mode .diet-options-group,
+body.dark-mode .meal-prep-group {
+  background: rgba(17, 58, 64, 0.5);
+}
+
+body.dark-mode .form-label {
+  color: #cbd5e1;
+}
+
+body.dark-mode .form-input,
+body.dark-mode .form-select,
+body.dark-mode .form-textarea {
+  background: rgba(15, 23, 42, 0.7);
+  border-color: rgba(20, 184, 166, 0.3);
+  color: #e2e8f0;
+}
+
+body.dark-mode .form-input:focus,
+body.dark-mode .form-select:focus,
+body.dark-mode .form-textarea:focus {
+  border-color: rgba(34, 211, 238, 0.6);
+  box-shadow: 0 0 0 3px rgba(34, 211, 238, 0.15);
+}
+
+body.dark-mode .form-input::placeholder,
+body.dark-mode .form-textarea::placeholder {
+  color: #64748b;
+}
+
+.diet-options-group {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-bottom: 0.75rem;
+  padding: 1.5rem;
+  background: rgba(255, 255, 255, 0.5);
+  border-radius: 12px;
+}
+
+.diet-option-field {
+  width: 100%;
+}
+
+.meal-prep-group {
+  margin-bottom: 0.75rem;
+  padding: 1.5rem;
+  background: rgba(255, 255, 255, 0.5);
+  border-radius: 12px;
+}
+
+.meal-prep-input {
+  width: 100%;
+  padding: 0.875rem 1rem;
+  border: 1px solid rgba(10, 61, 61, 0.2);
+  border-radius: 12px;
+  font-size: 13.3px;
+  font-family: 'Space Grotesk', sans-serif;
+  background: var(--sand-50);
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.meal-prep-input:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(14, 165, 166, 0.1);
+}
+
+.button-container {
+  text-align: center;
+  margin-top: 2rem;
+  padding-top: 0.75rem;
+  padding-bottom: 0.75rem;
+}
+
+.diet-plan-error {
+  margin-top: 1rem;
+  padding: 0.9rem 1rem;
+  border-radius: 10px;
+  background: rgba(220, 53, 69, 0.1);
+  border: 1px solid rgba(220, 53, 69, 0.25);
+  color: #b42318;
+  font-size: 13.3px;
+}
+
+.diet-plan-result {
+  margin-top: 1.25rem;
+  padding: 1.5rem;
+  background: rgba(255, 255, 255, 0.6);
+  border: 1px solid rgba(14, 165, 166, 0.2);
+  border-radius: 12px;
+}
+
+.diet-plan-result-title {
+  margin: 0 0 1rem;
+  color: var(--ink-900);
+  font-family: 'Fraunces', serif;
+  font-size: 20.9px;
+  font-weight: 600;
+}
+
+.diet-plan-result-text {
+  margin: 0;
+  white-space: pre-wrap;
+  word-break: break-word;
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 13.3px;
+  line-height: 1.6;
+  color: var(--ink-800);
+  background: transparent;
+}
+
+.diet-plan-container {
+  display: grid;
+  gap: 1rem;
+  margin: 1.5rem 0;
+}
+
+.meal-item {
+  padding: 1rem;
+  background: linear-gradient(135deg, rgba(14, 165, 166, 0.08) 0%, rgba(14, 165, 166, 0.04) 100%);
+  border-left: 4px solid var(--primary);
+  border-radius: 8px;
+  border: 1px solid rgba(14, 165, 166, 0.2);
+}
+
+.meal-name {
+  margin: 0 0 0.5rem 0;
+  font-size: 14.25px;
+  font-weight: 600;
+  color: var(--primary);
+  text-transform: capitalize;
+}
+
+.meal-details {
+  margin: 0;
+  font-size: 12.35px;
+  line-height: 1.5;
+  color: var(--ink-700);
+  word-break: break-word;
+}
+
+.save-message {
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  font-size: 13.3px;
+  font-weight: 500;
+  animation: slideIn 0.3s ease-out;
+}
+
+.save-message.success {
+  color: #27ae60;
+  background-color: rgba(39, 174, 96, 0.1);
+  border: 1px solid rgba(39, 174, 96, 0.3);
+}
+
+.save-message.error {
+  color: #e74c3c;
+  background-color: rgba(231, 76, 60, 0.1);
+  border: 1px solid rgba(231, 76, 60, 0.3);
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@media (max-width: 768px) {
+  .user-info-display {
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+    padding: 1rem;
+  }
+
+  .diet-form-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+    padding: 1rem;
+  }
+
+  .diet-options-group {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+    padding: 1rem;
+  }
+
+  .meal-prep-group {
+    padding: 1rem;
+  }
+
+
+}

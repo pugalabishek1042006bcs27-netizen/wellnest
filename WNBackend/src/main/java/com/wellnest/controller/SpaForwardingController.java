@@ -14,6 +14,8 @@ public class SpaForwardingController {
             "/user-profile",
             "/profile",
             "/home",
+            "/settings",
+            "/friends",
             "/forgot-password",
             "/reset-password",
             "/water-intake",

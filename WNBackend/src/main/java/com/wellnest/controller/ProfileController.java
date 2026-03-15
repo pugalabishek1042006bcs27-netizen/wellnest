@@ -56,4 +56,19 @@ public class ProfileController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
         }
     }
+
+    @PostMapping("/reset")
+    public ResponseEntity<Map<String, Object>> resetAccount(@RequestParam String email) {
+        try {
+            profileService.resetAccount(email);
+            Map<String, Object> result = new HashMap<>();
+            result.put("message", "Account data reset successfully");
+            return ResponseEntity.ok(result);
+        } catch (Exception e) {
+            e.printStackTrace();
+            Map<String, Object> errorResponse = new HashMap<>();
+            errorResponse.put("message", "Error: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
+        }
+    }
 }

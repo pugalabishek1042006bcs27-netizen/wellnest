@@ -8,6 +8,7 @@ import ProtectedRoute from './components/ProtectedRoute'
 import ForgotPassword from './components/ForgotPassword'
 import ResetPassword from './components/ResetPassword'
 import UserProfile from './components/UserProfile'
+import GuestProfileSetup from './components/GuestProfileSetup'
 import Profile from './components/Profile'
 import VerifyEmail from './components/VerifyEmail'
 import WaterIntake from './components/WaterIntake'
@@ -18,6 +19,14 @@ import AddWorkoutLog from './components/AddWorkoutLog'
 import AddWaterLog from './components/AddWaterLog'
 import AddSleepLog from './components/AddSleepLog'
 import AddMealLog from './components/AddMealLog'
+import CombinedGraph from './components/CombinedGraph'
+import WorkoutPlanner from './components/WorkoutPlanner'
+import DietPlanner from './components/DietPlanner'
+import CurrentPlans from './components/CurrentPlans'
+import HealthChat from './components/HealthChat'
+import Settings from './components/Settings'
+import Friends from './components/Friends'
+import Blog from './components/Blog'
 
 function App() {
   return (
@@ -28,6 +37,7 @@ function App() {
           <Route path="/signup" element={<Signup />} />
           <Route path="/verify-email" element={<VerifyEmail />} />
           <Route path="/user-profile" element={<UserProfile />} />
+          <Route path="/guest-profile-setup" element={<GuestProfileSetup />} />
           <Route path="/profile" element={
             <ProtectedRoute>
               <Profile />
@@ -78,6 +88,46 @@ function App() {
           <Route path="/add-meal" element={
             <ProtectedRoute>
               <AddMealLog />
+            </ProtectedRoute>
+          } />
+          <Route path="/combined-graph" element={
+            <ProtectedRoute>
+              <CombinedGraph />
+            </ProtectedRoute>
+          } />
+          <Route path="/workout-planner" element={
+            <ProtectedRoute>
+              <WorkoutPlanner />
+            </ProtectedRoute>
+          } />
+          <Route path="/diet-planner" element={
+            <ProtectedRoute>
+              <DietPlanner />
+            </ProtectedRoute>
+          } />
+          <Route path="/current-plans" element={
+            <ProtectedRoute>
+              <CurrentPlans />
+            </ProtectedRoute>
+          } />
+          <Route path="/chat" element={
+            <ProtectedRoute>
+              <HealthChat />
+            </ProtectedRoute>
+          } />
+          <Route path="/settings" element={
+            <ProtectedRoute>
+              <Settings />
+            </ProtectedRoute>
+          } />
+          <Route path="/friends" element={
+            <ProtectedRoute>
+              <Friends />
+            </ProtectedRoute>
+          } />
+          <Route path="/blog" element={
+            <ProtectedRoute>
+              <Blog />
             </ProtectedRoute>
           } />
           <Route path="/" element={<Navigate to="/login" replace />} />

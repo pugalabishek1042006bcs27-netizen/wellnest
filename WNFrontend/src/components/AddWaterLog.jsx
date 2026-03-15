@@ -89,7 +89,6 @@ const AddWaterLog = () => {
         <section
           className="section-card animate delay-2"
           style={{
-            background: 'white',
             padding: '2.5rem',
             borderRadius: '20px',
             boxShadow: '0 4px 20px rgba(0,0,0,0.08)',

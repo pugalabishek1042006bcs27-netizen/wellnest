@@ -10,6 +10,7 @@ const Signup = () => {
     fullName: '',
     email: '',
     phoneNumber: '',
+    gender: '',
     password: '',
     confirmPassword: ''
   })
@@ -111,6 +112,12 @@ const Signup = () => {
       return
     }
 
+    // Gender validation
+    if (!formData.gender) {
+      setError('Gender is required')
+      return
+    }
+
     // Password validation
     const passwordValidation = validatePasswordStrength(formData.password)
     if (!passwordValidation.valid) {
@@ -136,7 +143,8 @@ const Signup = () => {
         formData.username,
         formData.email,
         formData.password,
-        formData.phoneNumber
+        formData.phoneNumber,
+        formData.gender
       )
 
       if (data.token) {
@@ -224,6 +232,22 @@ const Signup = () => {
               maxLength="10"
               required
             />
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="gender">Gender</label>
+            <select
+              id="gender"
+              name="gender"
+              value={formData.gender}
+              onChange={handleChange}
+              required
+            >
+              <option value="">Select Gender</option>
+              <option value="male">Male</option>
+              <option value="female">Female</option>
+              <option value="other">Other</option>
+            </select>
           </div>
 
           <div className="form-group">

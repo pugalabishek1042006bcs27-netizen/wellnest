@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { mealService } from '../services/api'
@@ -12,6 +12,7 @@ const AddMealLog = () => {
   const [formData, setFormData] = useState({
     mealType: '',
     foodType: '',
+    mealName: '',
     calories: '',
     protein: '',
     carbs: '',
@@ -20,11 +21,60 @@ const AddMealLog = () => {
   })
   const [apiError, setApiError] = useState('')
   const [isLoading, setIsLoading] = useState(false)
+  const [isEstimating, setIsEstimating] = useState(false)
 
   const getUserInitial = () => user?.fullName?.charAt(0).toUpperCase() || 'U'
 
   const handleInputChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value })
+  }
+
+  const applyEstimate = (estimate) => {
+    setFormData((prev) => ({
+      ...prev,
+      calories: String(estimate.calories ?? 0),
+      protein: String(estimate.protein ?? 0),
+      carbs: String(estimate.carbs ?? 0),
+      fats: String(estimate.fats ?? 0)
+    }))
+  }
+
+  const estimateNutrition = async (showError = true) => {
+    if (!formData.mealName.trim()) {
+      if (showError) {
+        setApiError('Enter a meal name to estimate nutrition.')
+      }
+      return null
+    }
+
+    if (!user?.email) {
+      if (showError) {
+        setApiError('Please log in to estimate nutrition.')
+      }
+      return null
+    }
+
+    if (showError) {
+      setApiError('')
+    }
+    setIsEstimating(true)
+
+    try {
+      const result = await mealService.estimateMealNutrition({
+        mealName: formData.mealName,
+        foodType: formData.foodType
+      })
+      const estimate = result?.data ?? result
+      applyEstimate(estimate)
+      return estimate
+    } catch (error) {
+      if (showError) {
+        setApiError('Failed to estimate nutrition. Please try again.')
+      }
+      return null
+    } finally {
+      setIsEstimating(false)
+    }
   }
 
   const handleSubmit = async (e) => {
@@ -37,19 +87,37 @@ const AddMealLog = () => {
     setIsLoading(true)
 
     try {
+      let calories = parseInt(formData.calories || 0, 10)
+      let protein = parseInt(formData.protein || 0, 10)
+      let carbs = parseInt(formData.carbs || 0, 10)
+      let fats = parseInt(formData.fats || 0, 10)
+
+      if (!calories || calories <= 0 || Number.isNaN(protein) || Number.isNaN(carbs) || Number.isNaN(fats)) {
+        const estimate = await estimateNutrition(false)
+        if (!estimate) {
+          throw new Error('Nutrition estimate failed')
+        }
+
+        calories = parseInt(estimate.calories || 0, 10)
+        protein = parseInt(estimate.protein || 0, 10)
+        carbs = parseInt(estimate.carbs || 0, 10)
+        fats = parseInt(estimate.fats || 0, 10)
+      }
+
       await mealService.logMeal({
         email: user.email,
         mealType: formData.mealType,
         foodType: formData.foodType,
-        calories: parseInt(formData.calories || 0, 10),
-        protein: parseInt(formData.protein || 0, 10),
-        carbs: parseInt(formData.carbs || 0, 10),
-        fats: parseInt(formData.fats || 0, 10),
-        notes: formData.notes,
+        mealName: formData.mealName,
+        calories,
+        protein,
+        carbs,
+        fats,
+        notes: '',
         timestamp: new Date().toISOString()
       })
 
-      setFormData({ mealType: '', foodType: '', calories: '', protein: '', carbs: '', fats: '', notes: '' })
+      setFormData({ mealType: '', foodType: '', mealName: '', calories: '', protein: '', carbs: '', fats: '', notes: '' })
       navigate('/meal-tracker')
     } catch (error) {
       setApiError('Failed to log meal. Please try again.')
@@ -61,6 +129,18 @@ const AddMealLog = () => {
   const handleCancel = () => {
     navigate('/meal-tracker')
   }
+
+  useEffect(() => {
+    if (!formData.mealName.trim() || !user?.email) {
+      return
+    }
+
+    const timer = setTimeout(() => {
+      estimateNutrition(false)
+    }, 650)
+
+    return () => clearTimeout(timer)
+  }, [formData.mealName, formData.foodType, user?.email])
 
   return (
     <div className="home-container">
@@ -93,7 +173,6 @@ const AddMealLog = () => {
         <section
           className="section-card animate delay-2"
           style={{
-            background: 'white',
             padding: '2.5rem',
             borderRadius: '20px',
             boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
@@ -138,16 +217,45 @@ const AddMealLog = () => {
             </div>
 
             <div>
+              <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>Meal Name</label>
+              <div style={{ display: 'flex', gap: '0.75rem' }}>
+                <input
+                  type="text"
+                  name="mealName"
+                  value={formData.mealName}
+                  onChange={handleInputChange}
+                  required
+                  placeholder="e.g., Chicken Biryani"
+                  style={{ width: '100%', padding: '0.75rem', borderRadius: '8px', border: '1px solid #ddd', fontSize: '1rem' }}
+                />
+                <button
+                  type="button"
+                  onClick={() => estimateNutrition(true)}
+                  disabled={isEstimating || !formData.mealName.trim()}
+                  style={{
+                    padding: '0.75rem 1rem',
+                    borderRadius: '8px',
+                    border: '1px solid #ddd',
+                    background: '#f9fafb',
+                    cursor: isEstimating || !formData.mealName.trim() ? 'not-allowed' : 'pointer',
+                    whiteSpace: 'nowrap'
+                  }}
+                >
+                  {isEstimating ? 'Estimating...' : 'Estimate'}
+                </button>
+              </div>
+            </div>
+
+            <div>
               <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>Calories</label>
               <input
                 type="number"
                 name="calories"
                 value={formData.calories}
-                onChange={handleInputChange}
-                required
+                readOnly
                 min="1"
-                placeholder="e.g., 350"
-                style={{ width: '100%', padding: '0.75rem', borderRadius: '8px', border: '1px solid #ddd', fontSize: '1rem' }}
+                placeholder="Auto-calculated"
+                style={{ width: '100%', padding: '0.75rem', borderRadius: '8px', border: '1px solid #ddd', fontSize: '1rem', background: '#f9fafb' }}
               />
             </div>
 
@@ -158,10 +266,10 @@ const AddMealLog = () => {
                   type="number"
                   name="protein"
                   value={formData.protein}
-                  onChange={handleInputChange}
+                  readOnly
                   min="0"
-                  placeholder="20"
-                  style={{ width: '100%', padding: '0.75rem', borderRadius: '8px', border: '1px solid #ddd', fontSize: '1rem' }}
+                  placeholder="Auto"
+                  style={{ width: '100%', padding: '0.75rem', borderRadius: '8px', border: '1px solid #ddd', fontSize: '1rem', background: '#f9fafb' }}
                 />
               </div>
               <div>
@@ -170,10 +278,10 @@ const AddMealLog = () => {
                   type="number"
                   name="carbs"
                   value={formData.carbs}
-                  onChange={handleInputChange}
+                  readOnly
                   min="0"
-                  placeholder="45"
-                  style={{ width: '100%', padding: '0.75rem', borderRadius: '8px', border: '1px solid #ddd', fontSize: '1rem' }}
+                  placeholder="Auto"
+                  style={{ width: '100%', padding: '0.75rem', borderRadius: '8px', border: '1px solid #ddd', fontSize: '1rem', background: '#f9fafb' }}
                 />
               </div>
               <div>
@@ -182,24 +290,12 @@ const AddMealLog = () => {
                   type="number"
                   name="fats"
                   value={formData.fats}
-                  onChange={handleInputChange}
+                  readOnly
                   min="0"
-                  placeholder="15"
-                  style={{ width: '100%', padding: '0.75rem', borderRadius: '8px', border: '1px solid #ddd', fontSize: '1rem' }}
+                  placeholder="Auto"
+                  style={{ width: '100%', padding: '0.75rem', borderRadius: '8px', border: '1px solid #ddd', fontSize: '1rem', background: '#f9fafb' }}
                 />
               </div>
-            </div>
-
-            <div>
-              <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>Notes (Optional)</label>
-              <textarea
-                name="notes"
-                value={formData.notes}
-                onChange={handleInputChange}
-                placeholder="Add any notes about this meal..."
-                rows="3"
-                style={{ width: '100%', padding: '0.75rem', borderRadius: '8px', border: '1px solid #ddd', fontSize: '1rem', fontFamily: 'inherit', resize: 'vertical' }}
-              />
             </div>
 
             <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>

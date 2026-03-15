@@ -2,6 +2,8 @@ package com.wellnest.controller;
 
 import com.wellnest.model.MealLog;
 import com.wellnest.model.MealLogRequest;
+import com.wellnest.model.MealNutritionEstimateRequest;
+import com.wellnest.model.MealNutritionEstimateResponse;
 import com.wellnest.service.MealLogService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
@@ -39,6 +41,25 @@ public class MealLogController {
         Map<String, Object> result = new HashMap<>();
         result.put("data", logs);
         result.put("message", "Meal logs retrieved");
+        return ResponseEntity.ok(result);
+    }
+
+    @PostMapping("/estimate")
+    public ResponseEntity<Map<String, Object>> estimate(@Valid @RequestBody MealNutritionEstimateRequest request) {
+        MealNutritionEstimateResponse estimate = mealLogService.estimateNutrition(request.getMealName(), request.getFoodType());
+
+        Map<String, Object> result = new HashMap<>();
+        result.put("data", estimate);
+        result.put("message", "Meal nutrition estimated");
+        return ResponseEntity.ok(result);
+    }
+
+    @DeleteMapping("/logs/{id}")
+    public ResponseEntity<Map<String, Object>> delete(@PathVariable String id, @RequestParam String email) {
+        mealLogService.delete(email, id);
+
+        Map<String, Object> result = new HashMap<>();
+        result.put("message", "Meal log deleted");
         return ResponseEntity.ok(result);
     }
 }

@@ -83,8 +83,10 @@ const MealTracker = () => {
 
   const refreshFromLogs = (logs) => {
     const normalized = logs.map((log) => ({
+      id: log.id,
       mealType: log.mealType,
       foodType: log.foodType,
+      mealName: log.mealName || '',
       calories: parseInt(log.calories || 0, 10),
       protein: parseInt(log.protein || 0, 10),
       carbs: parseInt(log.carbs || 0, 10),
@@ -131,9 +133,13 @@ const MealTracker = () => {
     }
 
     const logToDelete = meals[index]
+    if (!logToDelete?.id) {
+      setApiError('This meal log cannot be deleted because id is missing.')
+      return
+    }
     
     try {
-      await mealService.deleteMeal(user.email, logToDelete.id || index)
+      await mealService.deleteMeal(user.email, logToDelete.id)
       const updatedMeals = meals.filter((_, i) => i !== index)
       refreshFromLogs(updatedMeals)
     } catch (error) {
@@ -217,11 +223,10 @@ const MealTracker = () => {
               <h3>Recent Meals</h3>
               <div className="meals-list">
                 {meals.map((meal, index) => (
-                  <div key={index} className="meal-item">
+                  <div key={meal.id || index} className="meal-item">
                     <div className="meal-info">
                       <strong>{meal.mealType}</strong>
-                      <span>{meal.foodType}</span>
-                      {meal.notes && <div style={{ fontSize: '0.85rem', color: '#666', marginTop: '0.3rem' }}>Notes: {meal.notes}</div>}
+                      <span>{meal.mealName || meal.foodType}</span>
                     </div>
                     <div className="meal-stats">
                       <span>{meal.calories} cal</span>

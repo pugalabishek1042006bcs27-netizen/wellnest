@@ -28,13 +28,13 @@
 
 .logo h1 {
   color: #1aa260;
-  font-size: 34px;
+  font-size: 32.3px;
   margin-bottom: 6px;
 }
 
 .logo p {
   color: #2b6f5a;
-  font-size: 14px;
+  font-size: 13.3px;
   font-weight: 600;
 }
 
@@ -49,12 +49,45 @@
   font-weight: 500;
 }
 
+.password-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.password-input-wrapper input {
+  padding-right: 46px;
+}
+
+.password-toggle-btn {
+  position: absolute;
+  right: 12px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1.14rem;
+  padding: 4px 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.2s;
+  user-select: none;
+}
+
+.password-toggle-btn:hover {
+  transform: scale(1.1);
+}
+
+.password-toggle-btn:active {
+  transform: scale(0.95);
+}
+
 .form-group input {
   width: 100%;
   padding: 12px;
   border: 2px solid #e6f3ec;
   border-radius: 10px;
-  font-size: 14px;
+  font-size: 13.3px;
   transition: border-color 0.2s, box-shadow 0.2s;
 }
 
@@ -63,7 +96,7 @@
   padding: 12px;
   border: 2px solid #e6f3ec;
   border-radius: 10px;
-  font-size: 14px;
+  font-size: 13.3px;
   background: white;
   transition: border-color 0.2s, box-shadow 0.2s;
 }
@@ -98,7 +131,7 @@ input[type="number"] {
   color: white;
   border: none;
   border-radius: 10px;
-  font-size: 16px;
+  font-size: 15.2px;
   font-weight: 700;
   cursor: pointer;
   transition: transform 0.15s, box-shadow 0.15s;
@@ -110,7 +143,7 @@ input[type="number"] {
   color: white;
   border: none;
   border-radius: 8px;
-  font-size: 15px;
+  font-size: 14.25px;
   font-weight: 700;
   cursor: pointer;
   transition: transform 0.15s, box-shadow 0.15s;
@@ -129,13 +162,13 @@ input[type="number"] {
   text-align: center;
   margin: 25px 0;
   color: #999;
-  font-size: 14px;
+  font-size: 13.3px;
 }
 
 .login-link {
   text-align: center;
   color: #666;
-  font-size: 14px;
+  font-size: 13.3px;
 }
 
 .login-link a {
@@ -154,7 +187,7 @@ input[type="number"] {
   padding: 10px;
   border-radius: 5px;
   margin-bottom: 15px;
-  font-size: 14px;
+  font-size: 13.3px;
 }
 
 .success-message {
@@ -163,7 +196,7 @@ input[type="number"] {
   padding: 10px;
   border-radius: 5px;
   margin-bottom: 15px;
-  font-size: 14px;
+  font-size: 13.3px;
 }
 
 /* Health Issues Grid */
@@ -195,7 +228,7 @@ input[type="number"] {
   margin: 0;
   cursor: pointer;
   font-weight: 400;
-  font-size: 13px;
+  font-size: 12.35px;
   color: #333;
 }
 

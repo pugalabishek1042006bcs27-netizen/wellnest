@@ -23,13 +23,13 @@
 
 .logo h1 {
   color: #1aa260;
-  font-size: 32px;
+  font-size: 30.4px;
   margin-bottom: 5px;
 }
 
 .logo p {
   color: #2b6f5a;
-  font-size: 14px;
+  font-size: 13.3px;
 }
 
 .form-group {
@@ -48,8 +48,33 @@
   padding: 12px;
   border: 2px solid #e1e8ed;
   border-radius: 8px;
-  font-size: 14px;
+  font-size: 13.3px;
   transition: border-color 0.3s;
+}
+
+.password-input-wrapper {
+  position: relative;
+}
+
+.password-input-wrapper input {
+  padding-right: 46px;
+}
+
+.password-toggle-btn {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-size: 15.2px;
+  line-height: 1;
+}
+
+.password-toggle-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
 }
 
 .form-group input:focus {
@@ -57,6 +82,27 @@
   border-color: #1aa260;
   box-shadow: 0 6px 18px rgba(26,162,96,0.06);
 }
+
+.remember-row {
+  margin-bottom: 16px;
+}
+
+.remember-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: #2b6f5a;
+  font-size: 13.3px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.remember-label input {
+  width: 16px;
+  height: 16px;
+  accent-color: #1aa260;
+}
+
 .btn {
   width: 100%;
   padding: 14px;
@@ -64,7 +110,7 @@
   color: white;
   border: none;
   border-radius: 10px;
-  font-size: 16px;
+  font-size: 15.2px;
   font-weight: 700;
   cursor: pointer;
   transition: transform 0.15s, box-shadow 0.15s;
@@ -76,21 +122,27 @@
 .btn:active {
   transform: translateY(0);
 }
-.btn:active {
-  transform: translateY(0);
+
+.btn-guest {
+  background: linear-gradient(90deg, #0ea5a6 0%, #06b6d4 60%);
+  margin-top: 12px;
+}
+
+.btn-guest:hover {
+  box-shadow: 0 10px 30px rgba(14,165,166,0.12);
 }
 
 .divider {
   text-align: center;
   margin: 25px 0;
   color: #999;
-  font-size: 14px;
+  font-size: 13.3px;
 }
 
 .signup-link {
   text-align: center;
   color: #666;
-  font-size: 14px;
+  font-size: 13.3px;
 }
 
 .signup-link a {
@@ -109,7 +161,7 @@
   padding: 10px;
   border-radius: 5px;
   margin-bottom: 15px;
-  font-size: 14px;
+  font-size: 13.3px;
 }
 
 .success-message {

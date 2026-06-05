@@ -2,7 +2,8 @@ package com.wellnest.controller;
 
 import com.wellnest.model.SleepLog;
 import com.wellnest.model.SleepLogRequest;
-import com.wellnest.service.SleepLogService;
+import com.wellnest.service.log.SleepLogService;
+
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

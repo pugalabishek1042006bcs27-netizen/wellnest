@@ -7,7 +7,7 @@ import './Signup.css'
 const UserProfile = () => {
   const navigate = useNavigate()
   const location = useLocation()
-  const { user } = useAuth()
+  const { user, updateProfile: saveProfileToContext } = useAuth()
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
   const [loading, setLoading] = useState(false)
@@ -51,7 +51,6 @@ const UserProfile = () => {
 
   const [formData, setFormData] = useState({
     age: '',
-    gender: '',
     height: '',
     weight: '',
     goals: [],
@@ -76,7 +75,7 @@ const UserProfile = () => {
       if (num === '' || num > 0) {
         setFormData({ ...formData, [name]: num })
       }
-    } else if (name === 'gender' || name === 'activityLevel') {
+    } else if (name === 'activityLevel') {
       setFormData({ ...formData, [name]: value })
     }
   }
@@ -128,10 +127,6 @@ const UserProfile = () => {
       setError('Please enter a valid age between 10 and 120')
       return
     }
-    if (!formData.gender) {
-      setError('Please select your gender')
-      return
-    }
     if (!formData.height || formData.height <= 0 || formData.height > 300) {
       setError('Please enter a valid height (in cm, 30-300)')
       return
@@ -151,26 +146,31 @@ const UserProfile = () => {
 
     try {
       setLoading(true)
-      const email = user?.email || location.state?.email
+      const email =
+        user?.email ||
+        location.state?.email ||
+        localStorage.getItem('email') ||
+        sessionStorage.getItem('email')
       
       if (!email) {
         setError('Email not found. Please sign up again.')
         return
       }
 
-      await profileService.updateProfile(email, {
+      const profileData = {
         age: formData.age,
-        gender: formData.gender,
         height: formData.height,
         weight: formData.weight,
         goals: formData.goals,
         activityLevel: formData.activityLevel,
         recentHealthIssues: formData.recentHealthIssues,
         pastHealthIssues: formData.pastHealthIssues
-      })
+      }
 
+      await profileService.updateProfile(email, profileData)
+      saveProfileToContext(profileData)
       setSuccess('Profile setup completed successfully!')
-      setTimeout(() => navigate('/home'), 1500)
+      navigate('/home', { replace: true })
     } catch (err) {
       setError(err.response?.data?.message || err.message || 'Server error. Please try again.')
     } finally {
@@ -209,24 +209,6 @@ const UserProfile = () => {
               max="120"
               required
             />
-          </div>
-
-          {/* Gender */}
-          <div className="form-group">
-            <label htmlFor="gender">Gender *</label>
-            <select
-              id="gender"
-              name="gender"
-              value={formData.gender}
-              onChange={handleInputChange}
-              required
-            >
-              <option value="">Select gender</option>
-              <option value="Male">Male</option>
-              <option value="Female">Female</option>
-              <option value="Non-binary">Non-binary</option>
-              <option value="Prefer not to say">Prefer not to say</option>
-            </select>
           </div>
 
           {/* Height */}

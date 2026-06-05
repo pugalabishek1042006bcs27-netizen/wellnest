@@ -1,4 +1,4 @@
-package com.wellnest.service;
+package com.wellnest.service.log;
 
 import com.wellnest.model.SleepLog;
 import com.wellnest.model.SleepLogRequest;

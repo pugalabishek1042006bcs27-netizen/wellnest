@@ -5,7 +5,7 @@ import './Home.css'
 
 const Navbar = () => {
   const navigate = useNavigate()
-  const { user, logout } = useAuth()
+  const { user, logout, isGuest } = useAuth()
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false)
 
   const handleTrackerNavigation = (path) => {
@@ -13,11 +13,18 @@ const Navbar = () => {
   }
 
   const handleProfileClick = () => {
+    setIsUserMenuOpen(false)
     navigate('/profile')
+  }
+
+  const handleFriendsClick = () => {
+    setIsUserMenuOpen(false)
+    navigate('/friends')
   }
 
   const handleSettingsClick = () => {
     setIsUserMenuOpen(false)
+    navigate('/settings')
   }
 
   const handleMenuToggle = () => {
@@ -39,10 +46,12 @@ const Navbar = () => {
       <button className="navbar-brand" onClick={() => handleTrackerNavigation('/home')}>WellNest</button>
       <div className="navbar-options">
         <button className="navbar-nav-btn" onClick={() => handleTrackerNavigation('/home')}>🏠 Home</button>
-        <button className="navbar-nav-btn">📈 Graphs</button>
         <button className="navbar-nav-btn" onClick={() => handleTrackerNavigation('/diet-planner')}>🍽️ Diet Planner</button>
         <button className="navbar-nav-btn" onClick={() => handleTrackerNavigation('/workout-planner')}>💪 Workout Planner</button>
         <button className="navbar-nav-btn" onClick={() => handleTrackerNavigation('/chat')}>💬 Health Chat</button>
+        {!isGuest && (
+          <button className="navbar-nav-btn" onClick={() => handleTrackerNavigation('/blog')}>📰 Blog</button>
+        )}
       </div>
 
       <div className="navbar-user">
@@ -55,7 +64,7 @@ const Navbar = () => {
           >
             <span className="user-info">
               <span className="user-avatar">{getUserInitial()}</span>
-              <span>{user?.fullName}</span>
+              <span>{user?.fullName}{isGuest && ' (Guest)'}</span>
             </span>
           </button>
           {isUserMenuOpen && (
@@ -69,6 +78,19 @@ const Navbar = () => {
                   <span>Profile</span>
                 </span>
               </button>
+              {!isGuest && (
+                <button className="menu-item" role="menuitem" onClick={handleFriendsClick}>
+                  <span className="menu-item-content">
+                    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                      <circle cx="9" cy="7" r="4" fill="none" stroke="currentColor" strokeWidth="2" />
+                      <circle cx="17" cy="7" r="4" fill="none" stroke="currentColor" strokeWidth="2" />
+                      <path d="M3 20c1-3 4-5 6-5s5 2 6 5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                      <path d="M13 20c1-3 4-5 6-5s5 2 6 5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                    </svg>
+                    <span>Friends</span>
+                  </span>
+                </button>
+              )}
               <button className="menu-item" role="menuitem" onClick={handleSettingsClick}>
                 <span className="menu-item-content">
                   <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">

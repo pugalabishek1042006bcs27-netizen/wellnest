@@ -51,7 +51,7 @@ public class User {
     private String gender;
     private Double height; // in cm
     private Double weight; // in kg
-    private List<String> goals;
+    private List<Goal> goals;
     private String activityLevel;
     private List<String> recentHealthIssues;
     private List<String> pastHealthIssues;
@@ -60,6 +60,8 @@ public class User {
     private List<WorkoutLog> workoutLogs;
     private List<SleepLog> sleepLogs;
     private List<MealLog> mealLogs;
+    private DietPlan currentDietPlan;
+    private WorkoutPlan currentWorkoutPlan;
     
     public User(String fullName, String email, String password) {
         this.fullName = fullName;

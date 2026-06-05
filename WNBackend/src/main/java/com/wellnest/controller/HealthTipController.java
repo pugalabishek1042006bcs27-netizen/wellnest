@@ -1,7 +1,7 @@
 package com.wellnest.controller;
 
 import com.wellnest.model.HealthTip;
-import com.wellnest.service.GeminiService;
+import com.wellnest.service.ai.GeminiService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 

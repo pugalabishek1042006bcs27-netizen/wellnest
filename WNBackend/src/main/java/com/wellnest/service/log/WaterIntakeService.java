@@ -1,4 +1,4 @@
-package com.wellnest.service;
+package com.wellnest.service.log;
 
 import com.wellnest.model.User;
 import com.wellnest.model.WaterIntakeLog;

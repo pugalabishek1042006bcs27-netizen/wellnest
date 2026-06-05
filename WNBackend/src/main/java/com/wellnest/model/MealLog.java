@@ -23,6 +23,7 @@ public class MealLog {
 
     private String mealType;
     private String foodType;
+    private String mealName;
     private Integer calories;
     private Integer protein;
     private Integer carbs;

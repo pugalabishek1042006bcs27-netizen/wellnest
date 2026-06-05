@@ -13,13 +13,13 @@
 
 .tracker-hero h1 {
   font-family: 'Fraunces', serif;
-  font-size: 28px;
+  font-size: 26.6px;
   margin-bottom: 6px;
 }
 
 .tracker-hero p {
   color: var(--ink-500);
-  font-size: 15px;
+  font-size: 14.25px;
 }
 
 .tracker-grid {
@@ -38,7 +38,7 @@
 }
 
 .stat-title {
-  font-size: 13px;
+  font-size: 12.35px;
   text-transform: uppercase;
   letter-spacing: 0.8px;
   color: var(--ink-500);
@@ -46,7 +46,7 @@
 }
 
 .stat-value {
-  font-size: 24px;
+  font-size: 22.8px;
   font-weight: 700;
   margin: 8px 0 4px;
   color: var(--ink-900);
@@ -54,7 +54,7 @@
 
 .stat-sub {
   color: var(--ink-500);
-  font-size: 13px;
+  font-size: 12.35px;
 }
 
 .chart-grid {
@@ -76,7 +76,7 @@
   font-weight: 700;
   margin-bottom: 16px;
   color: var(--ink-900);
-  font-size: 16px;
+  font-size: 15.2px;
 }
 
 .meals-list {
@@ -107,13 +107,13 @@
 
 .meal-info span {
   color: var(--ink-500);
-  font-size: 14px;
+  font-size: 13.3px;
 }
 
 .meal-stats {
   display: flex;
   gap: 12px;
-  font-size: 13px;
+  font-size: 12.35px;
   color: var(--ink-600);
   font-weight: 500;
 }
@@ -133,7 +133,7 @@
 }
 
 .chart-subtitle {
-  font-size: 13px;
+  font-size: 12.35px;
   color: var(--ink-500);
   margin-bottom: 14px;
 }
@@ -168,7 +168,7 @@
 .badge {
   padding: 4px 10px;
   border-radius: 999px;
-  font-size: 12px;
+  font-size: 11.4px;
   font-weight: 700;
   background: rgba(14, 165, 166, 0.14);
   color: #0a6d71;
@@ -202,12 +202,94 @@
 
 .insight-card h4 {
   margin-bottom: 8px;
-  font-size: 16px;
+  font-size: 15.2px;
 }
 
 .insight-card p {
   color: var(--ink-500);
-  font-size: 13px;
+  font-size: 12.35px;
+}
+
+body.dark-mode .tracker-hero {
+  background: linear-gradient(135deg, rgba(17, 58, 64, 0.9), rgba(30, 64, 78, 0.9));
+  border: 2px solid rgba(20, 184, 166, 0.35);
+  box-shadow: inset 0 0 0 1px rgba(45, 212, 191, 0.12);
+}
+
+body.dark-mode .tracker-hero h1,
+body.dark-mode .tracker-hero p {
+  color: #e2e8f0;
+}
+
+body.dark-mode .stat-tile,
+body.dark-mode .chart-container,
+body.dark-mode .chart-card,
+body.dark-mode .insight-card {
+  background: linear-gradient(135deg, rgba(17, 58, 64, 0.9) 0%, rgba(30, 64, 78, 0.9) 100%);
+  border: 2px solid rgba(20, 184, 166, 0.45);
+  box-shadow: inset 0 0 0 1px rgba(45, 212, 191, 0.12);
+}
+
+body.dark-mode .stat-title,
+body.dark-mode .stat-sub,
+body.dark-mode .chart-subtitle,
+body.dark-mode .meal-info span,
+body.dark-mode .insight-card p,
+body.dark-mode .log-row {
+  color: #94a3b8;
+}
+
+body.dark-mode .stat-value,
+body.dark-mode .chart-card h3,
+body.dark-mode .chart-title,
+body.dark-mode .meal-info strong,
+body.dark-mode .log-row strong,
+body.dark-mode .insight-card h4 {
+  color: #e2e8f0;
+}
+
+body.dark-mode .meal-item,
+body.dark-mode .log-row {
+  background: rgba(15, 23, 42, 0.62);
+  border-color: rgba(45, 212, 191, 0.22);
+}
+
+body.dark-mode .meal-stats {
+  color: #cbd5e1;
+}
+
+body.dark-mode .badge {
+  background: rgba(34, 211, 238, 0.14);
+  color: #22d3ee;
+}
+
+/* Dark mode for inline styled form elements in Add* components */
+body.dark-mode input[type="number"],
+body.dark-mode input[type="text"],
+body.dark-mode input[type="date"],
+body.dark-mode textarea,
+body.dark-mode select {
+  background: rgba(15, 23, 42, 0.7) !important;
+  border-color: rgba(20, 184, 166, 0.3) !important;
+  color: #e2e8f0 !important;
+}
+
+body.dark-mode input[type="number"]:focus,
+body.dark-mode input[type="text"]:focus,
+body.dark-mode input[type="date"]:focus,
+body.dark-mode textarea:focus,
+body.dark-mode select:focus {
+  border-color: rgba(34, 211, 238, 0.6) !important;
+  box-shadow: 0 0 0 3px rgba(34, 211, 238, 0.15) !important;
+}
+
+body.dark-mode input::placeholder,
+body.dark-mode textarea::placeholder {
+  color: #64748b !important;
+}
+
+body.dark-mode label {
+  color: #cbd5e1 !important;
 }
 
 @media (max-width: 768px) {

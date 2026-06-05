@@ -2,7 +2,7 @@ package com.wellnest.controller;
 
 import com.wellnest.model.WaterIntakeLog;
 import com.wellnest.model.WaterIntakeRequest;
-import com.wellnest.service.WaterIntakeService;
+import com.wellnest.service.log.WaterIntakeService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { useAuth } from '../context/AuthContext'
-import { useNavigate } from 'react-router-dom'
-import { mealService, profileService, sleepService, waterService, workoutService, healthTipService } from '../services/api'
+import { useNavigate, useLocation } from 'react-router-dom'
+import { mealService, profileService, sleepService, waterService, workoutService, healthTipService, goalService } from '../services/api'
 import { Line } from 'react-chartjs-2'
 import {
   Chart as ChartJS,
@@ -19,8 +19,9 @@ import './Home.css'
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Tooltip, Legend, Filler)
 
 const Home = () => {
-  const { user } = useAuth()
+  const { user, isGuest } = useAuth()
   const navigate = useNavigate()
+  const location = useLocation()
   const [profile, setProfile] = useState(null)
 
   const [waterIntake, setWaterIntake] = useState(0)
@@ -39,6 +40,8 @@ const Home = () => {
   })
 
   const [goals, setGoals] = useState([])
+  const [goalStreaks, setGoalStreaks] = useState({})
+  const [weeklyStreakDays, setWeeklyStreakDays] = useState(Array(7).fill(false))
   const [showAddGoalModal, setShowAddGoalModal] = useState(false)
   const [newGoal, setNewGoal] = useState({
     type: 'fitness',
@@ -65,18 +68,121 @@ const Home = () => {
 
   const exercises = ['Cardio', 'Strength', 'Yoga', 'HIIT', 'Cycling', 'Running', 'Swimming', 'Other']
 
+  const toSafeNumber = (value, fallback = 0) => {
+    const parsed = Number(value)
+    return Number.isFinite(parsed) ? parsed : fallback
+  }
+
+  const parseTimestamp = (value) => {
+    if (!value) {
+      return null
+    }
+    const date = new Date(value)
+    return Number.isNaN(date.getTime()) ? null : date
+  }
+
+  const toDateKey = (date) => {
+    const year = date.getFullYear()
+    const month = String(date.getMonth() + 1).padStart(2, '0')
+    const day = String(date.getDate()).padStart(2, '0')
+    return `${year}-${month}-${day}`
+  }
+
+  const getCurrentWeekDateKeys = () => {
+    const today = new Date()
+    today.setHours(0, 0, 0, 0)
+
+    const monday = new Date(today)
+    const dayOfWeek = monday.getDay()
+    const daysSinceMonday = (dayOfWeek + 6) % 7
+    monday.setDate(monday.getDate() - daysSinceMonday)
+
+    return Array.from({ length: 7 }, (_, index) => {
+      const current = new Date(monday)
+      current.setDate(monday.getDate() + index)
+      return toDateKey(current)
+    })
+  }
+
+  const aggregateDailyValues = (logs, valueGetter) => {
+    return logs.reduce((acc, log) => {
+      const timestamp = parseTimestamp(log.timestamp)
+      if (!timestamp) {
+        return acc
+      }
+
+      const value = toSafeNumber(valueGetter(log), 0)
+      if (value <= 0) {
+        return acc
+      }
+
+      const key = toDateKey(timestamp)
+      acc[key] = (acc[key] || 0) + value
+      return acc
+    }, {})
+  }
+
+  const calculateWeeklyCompletionDays = (dailyTotals, target) => {
+    const safeTarget = toSafeNumber(target, 0)
+    if (safeTarget <= 0) {
+      return Array(7).fill(false)
+    }
+
+    const weekKeys = getCurrentWeekDateKeys()
+    return weekKeys.map((dayKey) => {
+      const dayTotal = toSafeNumber(dailyTotals[dayKey], 0)
+      return dayTotal >= safeTarget
+    })
+  }
+
+  const calculateWeeklyDaysMet = (dailyTotals, target) => {
+    return calculateWeeklyCompletionDays(dailyTotals, target).filter(Boolean).length
+  }
+
+  const getGoalKey = (goal) => {
+    return goal?.id ?? `${goal?.type || 'goal'}-${goal?.name || 'unknown'}`
+  }
+
   const getIconByCategory = (category) => {
     return categoryDefaults[category]?.icon || '🎯'
   }
 
-  // Load goals from localStorage on mount
+  // Load goals from database on mount and when navigating to this page
   useEffect(() => {
-    if (user?.email) {
-      const savedGoals = localStorage.getItem(`goals_${user.email}`)
-      if (savedGoals) {
-        setGoals(JSON.parse(savedGoals))
-      } else {
-        // Initialize with default goals
+    const fetchGoals = async () => {
+      try {
+        if (isGuest) {
+          // For guests, load goals from sessionStorage
+          const storedGoals = sessionStorage.getItem('guestGoals')
+          if (storedGoals) {
+            const parsedGoals = JSON.parse(storedGoals)
+            const normalizedGoals = Array.isArray(parsedGoals)
+              ? parsedGoals.map((goal) => ({
+                  ...goal,
+                  target: toSafeNumber(goal.target, 0),
+                  actual: toSafeNumber(goal.actual, 0)
+                }))
+              : []
+            setGoals(normalizedGoals)
+          } else {
+            // Set empty goals for guest users
+            setGoals([])
+          }
+        } else if (user?.email) {
+          const goalsResponse = await goalService.getGoals(user.email)
+          const fetchedGoals = goalsResponse.data || goalsResponse || []
+          const normalizedGoals = Array.isArray(fetchedGoals)
+            ? fetchedGoals.map((goal) => ({
+                ...goal,
+                target: toSafeNumber(goal.target, 0),
+                actual: toSafeNumber(goal.actual, 0)
+              }))
+            : []
+          setGoals(normalizedGoals)
+        }
+      } catch (error) {
+        console.error('Error fetching goals:', error)
+        // Fallback to default goals if there's an error
         const defaultGoals = [
           { id: 1, name: 'Fitness Goal', target: 5, unit: 'workouts/week', icon: '🏃', type: 'fitness', actual: 0 },
           { id: 2, name: 'Nutrition Goal', target: 5, unit: 'servings/day', icon: '🥗', type: 'nutrition', actual: 0 },
@@ -84,24 +190,32 @@ const Home = () => {
           { id: 4, name: 'Sleep Goal', target: 8, unit: 'hours/night', icon: '😴', type: 'sleep', actual: 0 }
         ]
         setGoals(defaultGoals)
-        localStorage.setItem(`goals_${user.email}`, JSON.stringify(defaultGoals))
       }
     }
-  }, [user])
+    fetchGoals()
+  }, [user, isGuest, location.pathname])
 
   useEffect(() => {
     const fetchProfile = async () => {
       try {
-        if (user?.email) {
+        if (isGuest) {
+          // For guests, load profile from sessionStorage
+          const storedProfile = sessionStorage.getItem('guestProfile')
+          if (storedProfile) {
+            setProfile(JSON.parse(storedProfile))
+          }
+        } else if (user?.email) {
           const response = await profileService.getProfile(user.email)
-          setProfile(response.data)
+          // Backend returns { data: profileResponse, message: "..." }
+          const profileData = response.data || response
+          setProfile(profileData)
         }
       } catch (err) {
         console.log('Profile not yet set up')
       }
     }
     fetchProfile()
-  }, [user])
+  }, [user, isGuest])
 
   useEffect(() => {
     const isSameDay = (date, target) => {
@@ -110,18 +224,10 @@ const Home = () => {
         && date.getDate() === target.getDate()
     }
 
-    const parseInstant = (value) => {
-      if (!value) {
-        return null
-      }
-      const date = new Date(value)
-      return Number.isNaN(date.getTime()) ? null : date
-    }
-
     const getTodayLogs = (logs) => {
       const today = new Date()
       return logs.filter(log => {
-        const loggedAt = parseInstant(log.timestamp)
+        const loggedAt = parseTimestamp(log.timestamp)
         return loggedAt ? isSameDay(loggedAt, today) : false
       })
     }
@@ -148,7 +254,7 @@ const Home = () => {
         const buildWeeklyData = (logs, type) => {
           const data = [0, 0, 0, 0, 0, 0, 0]
           logs.forEach((log) => {
-            const timestamp = parseInstant(log.timestamp)
+            const timestamp = parseTimestamp(log.timestamp)
             if (!timestamp) return
             const dayIndex = (timestamp.getDay() + 6) % 7
 
@@ -188,8 +294,8 @@ const Home = () => {
         setWorkoutMinutes(Math.round(totalWorkoutMinutes))
 
         sleepLogs.sort((a, b) => {
-          const first = parseInstant(a.timestamp)
-          const second = parseInstant(b.timestamp)
+          const first = parseTimestamp(a.timestamp)
+          const second = parseTimestamp(b.timestamp)
           return (second?.getTime() || 0) - (first?.getTime() || 0)
         })
         const latestSleep = sleepLogs[0]
@@ -198,7 +304,7 @@ const Home = () => {
 
         const latestMealsByType = mealLogs.reduce((acc, log) => {
           const type = log.mealType || ''
-          const timestamp = parseInstant(log.timestamp)?.getTime() || 0
+          const timestamp = parseTimestamp(log.timestamp)?.getTime() || 0
           if (!type) {
             return acc
           }
@@ -219,36 +325,67 @@ const Home = () => {
           return !Number.isNaN(calories) && calories > 0 ? sum + calories : sum
         }, 0)
 
+        const hydrationByDay = aggregateDailyValues(waterResponse.data || [], (log) => log.liters)
+        const fitnessByDay = aggregateDailyValues(workoutResponse.data || [], (log) => log.durationMinutes)
+        const sleepByDay = aggregateDailyValues(sleepResponse.data || [], (log) => log.durationHours)
+        const nutritionByDay = aggregateDailyValues(mealResponse.data || [], (log) => log.calories)
+
         // Update goals with actual data
         if (goals.length > 0) {
+          const streaks = {}
+          const completionByGoal = []
           const updatedGoals = goals.map(goal => {
             let actual = 0
+            let completionDays = Array(7).fill(false)
             switch (goal.type) {
               case 'hydration':
-                // Compare liters directly (no conversion needed)
-                actual = waterIntake
+                actual = Math.round(totalCups)
+                streaks[getGoalKey(goal)] = calculateWeeklyDaysMet(hydrationByDay, goal.target)
+                completionDays = calculateWeeklyCompletionDays(hydrationByDay, goal.target)
                 break
               case 'fitness':
-                // Use total workout minutes for today
                 actual = totalWorkoutMinutes
+                streaks[getGoalKey(goal)] = calculateWeeklyDaysMet(fitnessByDay, goal.target)
+                completionDays = calculateWeeklyCompletionDays(fitnessByDay, goal.target)
                 break
               case 'sleep':
-                actual = sleepHours
+                actual = !Number.isNaN(latestSleepHours) ? latestSleepHours : 0
+                streaks[getGoalKey(goal)] = calculateWeeklyDaysMet(sleepByDay, goal.target)
+                completionDays = calculateWeeklyCompletionDays(sleepByDay, goal.target)
                 break
               case 'nutrition':
-                // Use total calories from meals
                 actual = totalMealCalories
+                streaks[getGoalKey(goal)] = calculateWeeklyDaysMet(nutritionByDay, goal.target)
+                completionDays = calculateWeeklyCompletionDays(nutritionByDay, goal.target)
                 break
               default:
                 actual = 0
+                streaks[getGoalKey(goal)] = 0
+                completionDays = Array(7).fill(false)
             }
+
+            completionByGoal.push(completionDays)
             return { ...goal, actual }
           })
+
+          const combinedCompletion = Array.from({ length: 7 }, (_, dayIndex) => (
+            completionByGoal.some((days) => days[dayIndex])
+          ))
+
           setGoals(updatedGoals)
-          // Save updated goals to localStorage
+          setGoalStreaks(streaks)
+          setWeeklyStreakDays(combinedCompletion)
+          // Save updated goals to database
           if (user?.email) {
-            localStorage.setItem(`goals_${user.email}`, JSON.stringify(updatedGoals))
+            try {
+              await goalService.saveGoals(user.email, updatedGoals)
+            } catch (saveError) {
+              console.error('Error saving goals:', saveError)
+            }
           }
+        } else {
+          setGoalStreaks({})
+          setWeeklyStreakDays(Array(7).fill(false))
         }
       } catch (err) {
         console.log('Unable to load tracker data')
@@ -258,11 +395,11 @@ const Home = () => {
     fetchLogs()
 
     // Set up interval to refetch logs every 30 seconds
-    const interval = setInterval(fetchLogs, 30000)
+    const interval = setInterval(fetchLogs, 60000)
     return () => clearInterval(interval)
   }, [user, goals.length])
 
-  // Welcome banner tip – fetch on mount, auto-refresh every 30 s
+  // Welcome banner tip – fetch on mount, auto-refresh every 1 hour
   useEffect(() => {
     const fetchBannerTip = async () => {
       try {
@@ -271,7 +408,7 @@ const Home = () => {
       } catch (_) { }
     }
     fetchBannerTip()
-    bannerIntervalRef.current = setInterval(fetchBannerTip, 30000)
+    bannerIntervalRef.current = setInterval(fetchBannerTip, 3600000)
     return () => clearInterval(bannerIntervalRef.current)
   }, [])
 
@@ -306,7 +443,7 @@ const Home = () => {
     }))
   }
 
-  const handleSaveGoal = () => {
+  const handleSaveGoal = async () => {
     const { type, exercise, duration, calories, fats, carbs, proteins, waterLiters, sleepHours } = newGoal
 
     let goalToAdd = {
@@ -370,26 +507,45 @@ const Home = () => {
     const updatedGoals = [...goals, goalToAdd]
     setGoals(updatedGoals)
 
-    // Save to localStorage
-    if (user?.email) {
-      localStorage.setItem(`goals_${user.email}`, JSON.stringify(updatedGoals))
+    // Save to database or sessionStorage based on user type
+    if (isGuest) {
+      // For guests, store in sessionStorage
+      sessionStorage.setItem('guestGoals', JSON.stringify(updatedGoals))
+    } else if (user?.email) {
+      // For authenticated users, save to backend
+      try {
+        await goalService.saveGoals(user.email, updatedGoals)
+      } catch (error) {
+        console.error('Error saving goal:', error)
+        alert('Failed to save goal. Please try again.')
+        return
+      }
     }
 
     handleCloseModal()
   }
 
-  const handleDeleteGoal = (goalId) => {
+  const handleDeleteGoal = async (goalId) => {
     const updatedGoals = goals.filter(goal => goal.id !== goalId)
     setGoals(updatedGoals)
 
-    if (user?.email) {
-      localStorage.setItem(`goals_${user.email}`, JSON.stringify(updatedGoals))
+    if (isGuest) {
+      // For guests, update sessionStorage
+      sessionStorage.setItem('guestGoals', JSON.stringify(updatedGoals))
+    } else if (user?.email) {
+      // For authenticated users, delete from backend
+      try {
+        await goalService.saveGoals(user.email, updatedGoals)
+      } catch (error) {
+        console.error('Error deleting goal:', error)
+        alert('Failed to delete goal. Please try again.')
+      }
     }
   }
 
   const calculateGoalProgress = (goal) => {
-    if (!goal.target) return 0
-    const progress = Math.min(100, Math.round((goal.actual / goal.target) * 100))
+    if (!goal?.target) return 0
+    const progress = Math.min(100, Math.round((toSafeNumber(goal.actual, 0) / toSafeNumber(goal.target, 1)) * 100))
     return progress
   }
 
@@ -575,6 +731,19 @@ const Home = () => {
             <div>
               <h2>Goal Tracker</h2>
               <p>Set and track your wellness goals for sustainable progress.</p>
+              <div className="weekly-streak-strip" aria-label="Weekly streak overview">
+                {weekLabels.map((day, index) => (
+                  <label key={day} className={`week-day-item ${weeklyStreakDays[index] ? 'checked' : ''}`}>
+                    <span className="week-day-label">{day}</span>
+                    <input
+                      type="checkbox"
+                      checked={weeklyStreakDays[index]}
+                      readOnly
+                      aria-label={`${day} completed`}
+                    />
+                  </label>
+                ))}
+              </div>
             </div>
             <button className="ghost-btn" onClick={handleAddGoal}>Add Goal</button>
           </div>
@@ -596,7 +765,10 @@ const Home = () => {
                 <div className="goal-progress">
                   <div className="progress-bar" style={{ width: `${calculateGoalProgress(goal)}%` }} />
                 </div>
-                <div className="goal-meta">{goal.actual.toFixed(1)}/{goal.target} - {calculateGoalProgress(goal)}%</div>
+                <div className="goal-meta">{toSafeNumber(goal.actual, 0).toFixed(1)}/{toSafeNumber(goal.target, 0)} - {calculateGoalProgress(goal)}%</div>
+                <div className="goal-streak">
+                  🔥 {goalStreaks[getGoalKey(goal)] || 0}/7 days this week
+                </div>
               </div>
             ))}
           </div>
@@ -743,10 +915,27 @@ const Home = () => {
           </div>
         )}
 
+        {(profile?.currentDietPlan || profile?.currentWorkoutPlan) && (
+          <div className="current-plans-section section-card animate delay-3">
+            <div className="current-plans-header">
+              <div>
+                <h2>Your Current Plans</h2>
+                <p>{profile?.currentDietPlan && profile?.currentWorkoutPlan ? 'View your saved diet and workout plans' : profile?.currentDietPlan ? 'View your saved diet plan' : 'View your saved workout plan'}</p>
+              </div>
+              <button className="ghost-btn" onClick={() => navigate('/current-plans')}>
+                Current Plan
+              </button>
+            </div>
+          </div>
+        )}
+
         <div className="trackers-section section-card animate delay-3">
           <div className="section-title-row">
-            <h2>Daily Trackers</h2>
-            <span className="section-note">Log small wins to build big habits.</span>
+            <div>
+              <h2>Daily Trackers</h2>
+              <span className="section-note">Log small wins to build big habits.</span>
+            </div>
+            <button className="ghost-btn" onClick={() => handleTrackerNavigation('/combined-graph')}>📊 Generate Report</button>
           </div>
           <div className="trackers-grid">
             <div className="tracker-card">
@@ -810,32 +999,34 @@ const Home = () => {
           </div>
         </div>
 
-        <div className="stats-section section-card animate delay-6">
-          <div className="stat-card health-calc">
-            <div className="stat-icon">⚖️</div>
-            <div className="stat-number">{bmi || '--'}</div>
-            <div className="stat-label">BMI</div>
-            <div className="stat-category">{getBMICategory(bmi)}</div>
+        {!isGuest && (
+          <div className="stats-section section-card animate delay-6">
+            <div className="stat-card health-calc">
+              <div className="stat-icon">⚖️</div>
+              <div className="stat-number">{bmi || '--'}</div>
+              <div className="stat-label">BMI</div>
+              <div className="stat-category">{getBMICategory(bmi)}</div>
+            </div>
+            <div className="stat-card health-calc">
+              <div className="stat-icon">🔥</div>
+              <div className="stat-number">{bmr || '--'}</div>
+              <div className="stat-label">BMR (cal/day)</div>
+              <div className="stat-sublabel">Basal Metabolic Rate</div>
+            </div>
+            <div className="stat-card health-calc">
+              <div className="stat-icon">🎯</div>
+              <div className="stat-number">{idealWeight}</div>
+              <div className="stat-label">Ideal Weight</div>
+              <div className="stat-sublabel">Recommended Range</div>
+            </div>
+            <div className="stat-card health-calc">
+              <div className="stat-icon">💧</div>
+              <div className="stat-number">{waterGoal}</div>
+              <div className="stat-label">Daily Water Goal</div>
+              <div className="stat-sublabel">Based on Body Weight</div>
+            </div>
           </div>
-          <div className="stat-card health-calc">
-            <div className="stat-icon">🔥</div>
-            <div className="stat-number">{bmr || '--'}</div>
-            <div className="stat-label">BMR (cal/day)</div>
-            <div className="stat-sublabel">Basal Metabolic Rate</div>
-          </div>
-          <div className="stat-card health-calc">
-            <div className="stat-icon">🎯</div>
-            <div className="stat-number">{idealWeight}</div>
-            <div className="stat-label">Ideal Weight</div>
-            <div className="stat-sublabel">Recommended Range</div>
-          </div>
-          <div className="stat-card health-calc">
-            <div className="stat-icon">💧</div>
-            <div className="stat-number">{waterGoal}</div>
-            <div className="stat-label">Daily Water Goal</div>
-            <div className="stat-sublabel">Based on Body Weight</div>
-          </div>
-        </div>
+        )}
       </div>
     </div>
   )

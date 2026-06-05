@@ -47,7 +47,8 @@ public class AuthService {
         user.setEmail(request.getEmail()); 
         user.setUsername(request.getUsername()); 
         user.setPassword(passwordEncoder.encode(request.getPassword())); // hash and set password
-        user.setPhoneNumber(request.getPhoneNumber()); 
+        user.setPhoneNumber(request.getPhoneNumber());
+        user.setGender(request.getGender());
         user.setCreatedAt(LocalDateTime.now()); 
         user.setUpdatedAt(LocalDateTime.now()); 
         user.setActive(false); // require email verification
@@ -199,6 +200,17 @@ public class AuthService {
         userRepository.save(user); // persist changes
 
         return new AuthResponse(null, user.getEmail(), user.getFullName(), "Password reset successful"); 
+    }
+
+    public AuthResponse deleteAccount(String email) {
+        Optional<User> userOptional = userRepository.findByEmail(email);
+        if (userOptional.isEmpty()) {
+            return new AuthResponse(null, null, null, "User not found");
+        }
+
+        User user = userOptional.get();
+        userRepository.delete(user);
+        return new AuthResponse(null, user.getEmail(), user.getFullName(), "Account deleted successfully");
     }
 
     private String generateOtp() { // generate a 6-digit code

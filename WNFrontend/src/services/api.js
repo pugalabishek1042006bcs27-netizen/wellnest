@@ -1,18 +1,19 @@
 import axios from 'axios'
 
-const API_URL = 'http://localhost:8080/api/auth'
-const PROFILE_API_URL = 'http://localhost:8080/api/profile'
-const WATER_API_URL = 'http://localhost:8080/api/water-intake'
-const WORKOUT_API_URL = 'http://localhost:8080/api/workouts'
-const SLEEP_API_URL = 'http://localhost:8080/api/sleep'
-const MEAL_API_URL = 'http://localhost:8080/api/meals'
-const HEALTH_TIP_API_URL = 'http://localhost:8080/api/health-tips'
-const DIET_PLAN_API_URL = 'http://localhost:8080/api/diet-plan'
-const WORKOUT_PLAN_API_URL = 'http://localhost:8080/api/workout-plan'
-const GOALS_API_URL = 'http://localhost:8080/api/goals'
-const HEALTH_CHAT_API_URL = 'http://localhost:8080/api/health-chat'
-const FRIENDS_API_URL = 'http://localhost:8080/api/friends'
-const BLOG_API_URL = 'http://localhost:8080/api/blog'
+const BASE_API_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080'
+const API_URL = `${BASE_API_URL}/api/auth`
+const PROFILE_API_URL = `${BASE_API_URL}/api/profile`
+const WATER_API_URL = `${BASE_API_URL}/api/water-intake`
+const WORKOUT_API_URL = `${BASE_API_URL}/api/workouts`
+const SLEEP_API_URL = `${BASE_API_URL}/api/sleep`
+const MEAL_API_URL = `${BASE_API_URL}/api/meals`
+const HEALTH_TIP_API_URL = `${BASE_API_URL}/api/health-tips`
+const DIET_PLAN_API_URL = `${BASE_API_URL}/api/diet-plan`
+const WORKOUT_PLAN_API_URL = `${BASE_API_URL}/api/workout-plan`
+const GOALS_API_URL = `${BASE_API_URL}/api/goals`
+const HEALTH_CHAT_API_URL = `${BASE_API_URL}/api/health-chat`
+const FRIENDS_API_URL = `${BASE_API_URL}/api/friends`
+const BLOG_API_URL = `${BASE_API_URL}/api/blog`
 
 const api = axios.create({
   baseURL: API_URL,

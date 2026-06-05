@@ -10,4 +10,5 @@ FROM eclipse-temurin:21-jre-jammy
 WORKDIR /app
 COPY --from=build /app/target/*.jar app.jar
 EXPOSE 8080
-ENTRYPOINT ["java", "-jar", "app.jar"]
+# Use shell form so environment variables from Render are expanded and passed to the JVM
+CMD ["sh", "-c", "java -Dspring.data.mongodb.uri=\"$SPRING_DATA_MONGODB_URI\" -jar app.jar"]
